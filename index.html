@@ -215,8 +215,15 @@
 
     </div>
 
-    <!-- Application Logic -->
+  <!-- Application Logic -->
     <script>
+        // Helper to format values cleanly with + / - signs (e.g. +2.00 or -1.50)
+        function formatRx(val) {
+            const num = parseFloat(val);
+            if (isNaN(num)) return "0.00";
+            return (num >= 0 ? "+" : "") + num.toFixed(2);
+        }
+
         // Mathematical Lens Calculations
         function calculateLenses(c3, c9) {
             const results = [];
@@ -231,9 +238,9 @@
 
             results.push({
                 type: 'Workstyle Space',
-                fittingCross: c_c6.toFixed(2),
-                aboveCross: c_c22.toFixed(2),
-                fullNear: fullNearRx.toFixed(2)
+                fittingCross: formatRx(c_c6),
+                aboveCross: formatRx(c_c22),
+                fullNear: formatRx(fullNearRx)
             });
 
             // 2. Workstyle Screen (Column E)
@@ -245,9 +252,9 @@
 
             results.push({
                 type: 'Workstyle Screen',
-                fittingCross: e_e6.toFixed(2),
-                aboveCross: e_e22.toFixed(2),
-                fullNear: fullNearRx.toFixed(2)
+                fittingCross: formatRx(e_e6),
+                aboveCross: formatRx(e_e22),
+                fullNear: formatRx(fullNearRx)
             });
 
             // 3. Workstyle Screen (Adds 2.50D & Over) (Column G)
@@ -258,9 +265,9 @@
 
             results.push({
                 type: 'Workstyle Screen (Adds 2.50D & Over)',
-                fittingCross: g_g6.toFixed(2),
-                aboveCross: g_g22.toFixed(2),
-                fullNear: fullNearRx.toFixed(2)
+                fittingCross: formatRx(g_g6),
+                aboveCross: formatRx(g_g22),
+                fullNear: formatRx(fullNearRx)
             });
 
             // 4. Workstyle Close (Column H)
@@ -272,9 +279,9 @@
 
             results.push({
                 type: 'Workstyle Close',
-                fittingCross: h_h6.toFixed(2),
-                aboveCross: h_h22.toFixed(2),
-                fullNear: fullNearRx.toFixed(2)
+                fittingCross: formatRx(h_h6),
+                aboveCross: formatRx(h_h22),
+                fullNear: formatRx(fullNearRx)
             });
 
             // 5. Workstyle Close (Add 2.50D & Over) (Column J)
@@ -285,6 +292,104 @@
 
             results.push({
                 type: 'Workstyle Close (Add 2.50D & Over)',
-                fittingCross: j_j6.toFixed(2),
-                aboveCross: j_j22.toFixed(2),
-                fullNear: fullNearRx.toFixed(2
+                fittingCross: formatRx(j_j6),
+                aboveCross: formatRx(j_j22),
+                fullNear: formatRx(fullNearRx)
+            });
+
+            return results;
+        }
+
+        // Main Calculation & Rendering Function
+        function renderCalculator() {
+            const distInput = document.getElementById('distanceRx');
+            const addInput = document.getElementById('nearAdd');
+            const tbody = document.getElementById('resultsTableBody');
+
+            if (!distInput || !addInput || !tbody) return;
+
+            const distanceRx = parseFloat(distInput.value) || 0;
+            const nearAdd = parseFloat(addInput.value) || 0;
+            const patientName = document.getElementById('patientName') ? document.getElementById('patientName').value.trim() : '';
+            const clinicalNotes = document.getElementById('clinicalNotes') ? document.getElementById('clinicalNotes').value.trim() : '';
+
+            // Update Header Title
+            const resultsTitle = document.getElementById('resultsTitle');
+            if (resultsTitle) {
+                resultsTitle.textContent = patientName ? `📋 Calculation Results for: ${patientName}` : '📋 Calculation Results';
+            }
+
+            // Update Clinical Notes
+            const notesDisplay = document.getElementById('notesDisplay');
+            if (notesDisplay) {
+                if (clinicalNotes) {
+                    notesDisplay.innerHTML = `<strong>Notes:</strong> ${clinicalNotes}`;
+                    notesDisplay.classList.remove('hidden');
+                } else {
+                    notesDisplay.classList.add('hidden');
+                }
+            }
+
+            // Calculate & Render Rows
+            const calculatedData = calculateLenses(distanceRx, nearAdd);
+            tbody.innerHTML = '';
+
+            calculatedData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-bold text-left">${row.type}</td>
+                    <td>${row.fittingCross}</td>
+                    <td>${row.aboveCross}</td>
+                    <td>${row.fullNear}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Export Data to CSV
+        function downloadCSV() {
+            const distanceRx = parseFloat(document.getElementById('distanceRx').value) || 0;
+            const nearAdd = parseFloat(document.getElementById('nearAdd').value) || 0;
+            const patientName = document.getElementById('patientName').value.trim();
+            const calculatedData = calculateLenses(distanceRx, nearAdd);
+
+            let csvRows = ['Lens Type,RX AT FITTING CROSS,RX 8MM ABOVE FITTING CROSS,Full Near Rx'];
+
+            calculatedData.forEach(row => {
+                csvRows.push(`"${row.type}",${row.fittingCross},${row.aboveCross},${row.fullNear}`);
+            });
+
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const filePrefix = patientName ? patientName.replace(/\s+/g, '_') : 'workstyle_lens';
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${filePrefix}_calculations.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize Event Listeners safely after DOM loads
+        function initApp() {
+            renderCalculator();
+
+            ['distanceRx', 'nearAdd', 'patientName', 'clinicalNotes'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', renderCalculator);
+                    el.addEventListener('change', renderCalculator);
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+
+What changed:

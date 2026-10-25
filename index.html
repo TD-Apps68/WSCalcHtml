@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workstyle Lens Calculator</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E3A8A',
+                        primaryHover: '#172554',
+                        slateBg: '#F8FAFC',
+                        slateBorder: '#CBD5E1',
+                        slateText: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #334155;
+            font-size: 16px;
+        }
+
+        /* Custom styling for print optimization */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+            body {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-full-width {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #CBD5E1 !important;
+            }
+            table th {
+                background-color: #E2E8F0 !important;
+                color: #000000 !important;
+                border: 1px solid #94A3B8 !important;
+            }
+            table td {
+                border: 1px solid #94A3B8 !important;
+                color: #000000 !important;
+            }
+            h1 {
+                color: #000000 !important;
+                border-bottom: 2px solid #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-700">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-primary text-white py-4 px-6 shadow-md no-print">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <svg class="w-8 h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <h1 class="text-xl md:text-2xl font-bold tracking-wide text-white border-none p-0">Workstyle Lens Calculator</h1>
+            </div>
+            <span class="text-xs md:text-sm bg-blue-900 px-3 py-1 rounded-full text-blue-200 font-medium">Clinical Suite</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 lg:p-8 flex-grow">
+        
+        <!-- Header & Prescription Input Section -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6 print-card">
+            <div class="border-b border-slate-200 pb-4 mb-6">
+                <h1 class="text-2xl font-bold text-primary pb-1">Workstyle Lens Calculator</h1>
+                <p class="text-sm text-slate-600 mt-1">
+                    Enter the <strong>Distance Rx</strong> and <strong>Near ADD</strong> to calculate powers <strong>at the fitting cross</strong>, 8mm above the fitting cross, and the <strong>Full Near Rx</strong> across all Workstyle lens designs.
+                </p>
+            </div>
+
+            <!-- Main Input Parameters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+                <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100">
+                    <label for="distanceRx" class="block text-xs font-bold uppercase tracking-wider text-primary mb-1">Distance Rx (Sphere)</label>
+                    <input type="number" id="distanceRx" value="2.00" step="0.25" 
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-lg font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                </div>
+
+                <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100">
+                    <label for="nearAdd" class="block text-xs font-bold uppercase tracking-wider text-primary mb-1">Near ADD</label>
+                    <input type="number" id="nearAdd" value="2.50" step="0.25" 
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-lg font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                </div>
+
+                <div>
+                    <label for="patientName" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Patient Name / ID</label>
+                    <input type="text" id="patientName" placeholder="e.g. John Doe / #12345" 
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all h-[44px]">
+                </div>
+
+                <div>
+                    <label for="clinicalNotes" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Clinical Notes / Instructions</label>
+                    <input type="text" id="clinicalNotes" placeholder="Frame fitting or dispense notes..." 
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all h-[44px]">
+                </div>
+            </div>
+
+            <!-- Print View Patient Summary Header -->
+            <div id="patientHeaderDisplay" class="mt-4 hidden p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                    <p id="displayPatientName" class="font-bold text-slate-800"></p>
+                    <p id="displayRxValues" class="font-semibold text-primary"></p>
+                    <p id="displayClinicalNotes" class="text-slate-600 col-span-1 md:col-span-2 italic mt-1"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matrix / Results Table Section -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 print-card">
+            
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+                <div>
+                    <h2 class="text-lg font-bold text-primary flex items-center gap-2">
+                        <span>📋 Calculation Results</span>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-semibold">Live Calculated</span>
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Dynamic Table Container -->
+            <div class="overflow-x-auto rounded-lg border border-slate-200">
+                <table class="w-full text-left border-collapse min-w-[650px]">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="p-3 text-xs md:text-sm font-semibold text-left border-r border-blue-800 min-w-[220px] leading-tight">Lens Type</th>
+                            <th class="p-3 text-xs md:text-sm font-semibold text-center border-r border-blue-800 leading-tight">RX AT FITTING CROSS</th>
+                            <th class="p-3 text-xs md:text-sm font-semibold text-center border-r border-blue-800 leading-tight">RX 8MM ABOVE FITTING CROSS</th>
+                            <th class="p-3 text-xs md:text-sm font-semibold text-center leading-tight">Full Near Rx</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody" class="divide-y divide-slate-200 bg-white text-center">
+                        <!-- Dynamic Rows JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 no-print">
+                <button id="downloadCsvBtn" 
+                    class="flex-1 flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-primary font-semibold py-2.5 px-4 rounded-lg border border-slate-300 transition-colors duration-150">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span>📥 Download Results as CSV</span>
+                </button>
+
+                <button id="printBtn" 
+                    class="flex-1 flex items-center justify-center space-x-2 bg-primary hover:bg-blue-900 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-150 shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    <span>🖨️ Print Results (A4)</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 mt-8 no-print">
+        <div class="max-w-7xl mx-auto text-center text-xs text-slate-500">
+            Workstyle Lens Calculation Suite &bull; Professional Ophthalmic Dispensing Tool
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Formatter function to ensure numbers are formatted with 2 decimals
+        function formatNumber(num) {
+            const val = parseFloat(num);
+            if (isNaN(val)) return "0.00";
+            return val.toFixed(2);
+        }
+
+        // Calculation logic matching Streamlit formulas
+        function calculateLenses(c3, c9) {
+            const fullNearRx = c3 + c9;
+
+            // 1. Workstyle Space (Column C)
+            const c_c11 = c9 * 0.43;
+            const c_c6 = c_c11 + c3;
+            const c_c22 = (c9 / 30 + c3) + (c9 / 15) * 2;
+
+            // 2. Workstyle Screen (Column E)
+            const e_e3 = c3 + (0.22 * c9);
+            const e_e13 = c3 + c9;
+            const e_e9 = e_e13 - e_e3;
+            const e_e6 = (e_e9 * 0.43) + e_e3;
+            const e_e22 = e_e3 + (e_e9 / 30) + (e_e9 / 15) * 2;
+
+            // 3. Workstyle Screen (Adds 2.50D & Over) (Column G)
+            const g_g3 = c3 + 0.54;
+            const g_g9 = c9 - 0.54;
+            const g_g6 = (g_g9 * 0.43) + g_g3;
+            const g_g22 = g_g3 + (g_g9 / 30) + (g_g9 / 15) * 2;
+
+            // 4. Workstyle Close (Column H)
+            const h_h3 = c3 + (0.4 * c9);
+            const h_h13 = c3 + c9;
+            const h_h9 = h_h13 - h_h3;
+            const h_h6 = h_h3 + (h_h9 * 0.43);
+            const h_h22 = h_h3 + (h_h9 / 14) * 2;
+
+            // 5. Workstyle Close (Add 2.50D & Over) (Column J)
+            const j_j3 = c3 + 1.0;
+            const j_j9 = c9 - 1.0;
+            const j_j6 = j_j3 + (j_j9 * 0.43);
+            const j_j22 = j_j3 + (j_j9 / 14) * 2;
+
+            return [
+                {
+                    name: "Workstyle Space",
+                    fc: formatNumber(c_c6),
+                    above: formatNumber(c_c22),
+                    near: formatNumber(fullNearRx)
+                },
+                {
+                    name: "Workstyle Screen",
+                    fc: formatNumber(e_e6),
+                    above: formatNumber(e_e22),
+                    near: formatNumber(fullNearRx)
+                },
+                {
+                    name: "Workstyle Screen (Adds 2.50D & Over)",
+                    fc: formatNumber(g_g6),
+                    above: formatNumber(g_g22),
+                    near: formatNumber(fullNearRx)
+                },
+                {
+                    name: "Workstyle Close",
+                    fc: formatNumber(h_h6),
+                    above: formatNumber(h_h22),
+                    near: formatNumber(fullNearRx)
+                },
+                {
+                    name: "Workstyle Close (Add 2.50D & Over)",
+                    fc: formatNumber(j_j6),
+                    above: formatNumber(j_j22),
+                    near: formatNumber(fullNearRx)
+                }
+            ];
+        }
+
+        // Render UI Updates
+        function updateCalculations() {
+            const distanceRx = parseFloat(document.getElementById('distanceRx').value) || 0;
+            const nearAdd = parseFloat(document.getElementById('nearAdd').value) || 0;
+            const patientName = document.getElementById('patientName').value.trim();
+            const clinicalNotes = document.getElementById('clinicalNotes').value.trim();
+
+            // Update Patient Display Header for Print/Preview
+            const displayHeader = document.getElementById('patientHeaderDisplay');
+            const displayName = document.getElementById('displayPatientName');
+            const displayRx = document.getElementById('displayRxValues');
+            const displayNotes = document.getElementById('displayClinicalNotes');
+
+            if (patientName || clinicalNotes) {
+                displayHeader.classList.remove('hidden');
+                displayName.textContent = patientName ? `Patient / Order ID: ${patientName}` : 'Patient / Order: N/A';
+                displayRx.textContent = `Distance Rx: ${formatNumber(distanceRx)} | Near ADD: ${formatNumber(nearAdd)}`;
+                displayNotes.textContent = clinicalNotes ? `Notes: ${clinicalNotes}` : '';
+            } else {
+                displayHeader.classList.add('hidden');
+            }
+
+            const results = calculateLenses(distanceRx, nearAdd);
+            const tbody = document.getElementById('resultsTableBody');
+
+            tbody.innerHTML = '';
+
+            results.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = index % 2 === 0 ? 'bg-white hover:bg-slate-50 transition-colors' : 'bg-slate-50/50 hover:bg-slate-100/50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-3 text-xs md:text-sm font-bold text-slate-800 text-left border-r border-slate-200">${row.name}</td>
+                    <td class="p-3 text-sm font-medium text-slate-700 border-r border-slate-100">${row.fc}</td>
+                    <td class="p-3 text-sm font-medium text-slate-700 border-r border-slate-100">${row.above}</td>
+                    <td class="p-3 text-sm font-bold text-primary">${row.near}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // CSV Export Handler
+        function downloadCSV() {
+            const distanceRx = parseFloat(document.getElementById('distanceRx').value) || 0;
+            const nearAdd = parseFloat(document.getElementById('nearAdd').value) || 0;
+            const patientName = document.getElementById('patientName').value.trim();
+            
+            const results = calculateLenses(distanceRx, nearAdd);
+            let csvContent = "data:text/csv;charset=utf-8,Lens Type,RX AT FITTING CROSS,RX 8MM ABOVE FITTING CROSS,Full Near Rx\n";
+
+            results.forEach(row => {
+                csvContent += `"${row.name}",${row.fc},${row.above},${row.near}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+
+            const prefix = patientName ? patientName.replace(/[^a-z0-9]/gi, '_').toLowerCase() : "workstyle_lens";
+            link.setAttribute("download", `${prefix}_calculations.csv`);
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('distanceRx').addEventListener('input', updateCalculations);
+            document.getElementById('nearAdd').addEventListener('input', updateCalculations);
+            document.getElementById('patientName').addEventListener('input', updateCalculations);
+            document.getElementById('clinicalNotes').addEventListener('input', updateCalculations);
+
+            document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
+            document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+            updateCalculations();
+        });
+    </script>
+</body>
+</html>
